@@ -204,9 +204,14 @@ Pull requests are welcome! For major changes, open an issue first.
 <p align="center">
   <img src="assets/ui3.png.png" width="700" alt="UI Screenshot 3"/>
 </p>
----
-👉 [Click here to view full UI screenshots (PDF)](assets/UI_screenshots.pdf)
 
+---
+
+<p align="center">
+  <img src="assets/UI_screenshots.pdf" alt="UI Preview" />
+</p>
+
+> 📄 **[Click here to view full UI screenshots](assets/UI_screenshots.pdf)**
 ---
 
 ## 👨‍💻 Author
