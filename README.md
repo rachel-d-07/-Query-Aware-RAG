@@ -191,10 +191,9 @@ Pull requests are welcome! For major changes, open an issue first.
 5. Open a Pull Request
 
 ---
+## 📸 UI Preview
 
-## 📄 License
-
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+👉 [Click here to view full UI screenshots (PDF)](assets/ui_screenshots.pdf)
 
 ---
 

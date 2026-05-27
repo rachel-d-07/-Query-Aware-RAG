@@ -15,6 +15,80 @@ def inject_theme() -> None:
         """
         <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+        /* Sidebar collapse button — show >> when sidebar is open */
+        [data-testid="stSidebarCollapseButton"] button::before {
+            content: ">>";
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            color: #f0ece4;
+        }
+        [data-testid="stSidebarCollapseButton"] button svg,
+        [data-testid="stSidebarCollapseButton"] button span {
+            display: none !important;
+        }
+
+        /* Sidebar expand button (when sidebar is closed) — show << */
+        [data-testid="stSidebarCollapsedControl"] button::before {
+            content: "<<";
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            color: #f0ece4;
+        }
+        [data-testid="stSidebarCollapsedControl"] button svg,
+        [data-testid="stSidebarCollapsedControl"] button span {
+            display: none !important;
+        }
+
+        /* Upload — show a single custom-styled browse button */
+        [data-testid="stFileUploaderDropzone"] {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        [data-testid="stFileUploaderDropzoneInstructions"],
+        [data-testid="stFileUploaderDropzone"] small,
+        [data-testid="stFileUploaderDropzone"] svg {
+            display: none !important;
+        }
+
+        [data-testid="stFileUploader"] > label,
+        div[data-testid="stFileUploaderFile"] {
+            display: none !important;
+        }
+
+        [data-testid="stFileUploaderDropzone"] > div > button {
+            background: #E05A4E !important;
+            color: transparent !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 0.55rem 1.2rem !important;
+            font-size: 0 !important;
+            width: 100% !important;
+            position: relative !important;
+            cursor: pointer !important;
+            min-height: 2.5rem !important;
+        }
+
+        [data-testid="stFileUploaderDropzone"] > div > button::after {
+            content: "Upload Files";
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            font-size: 0.85rem !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 500 !important;
+            color: #ffffff !important;
+            visibility: visible !important;
+            white-space: nowrap !important;
+        }
+
+        [data-testid="stFileUploaderDropzone"] > div > button:hover {
+            background: #c94e43 !important;
+        }
 
         html, body, .stApp {
             font-family: 'Outfit', sans-serif !important;
@@ -110,6 +184,21 @@ def inject_theme() -> None:
 
         div[data-testid="stButton"] > button[kind="primary"]:hover {
             background: #c94e43;
+        }
+
+        div[data-testid="stButton"] button[kind="secondary"] {
+            background: rgba(224, 90, 78, 0.15) !important;
+            color: #E05A4E !important;
+            border: 1px solid rgba(224, 90, 78, 0.3) !important;
+            border-radius: 8px !important;
+            padding: 0.3rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            min-height: 0 !important;
+            width: 100% !important;
+        }
+
+        div[data-testid="stButton"] button[kind="secondary"]:hover {
+            background: rgba(224, 90, 78, 0.3) !important;
         }
 
         .stProgress > div > div > div > div {
@@ -317,6 +406,8 @@ def init_state() -> None:
         "build_info": None,
         "history": [],
         "active_mode": "existing",
+        "uploaded_files_list": [],
+        "uploader_nonce": 0,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -628,6 +719,24 @@ def _format_build_time() -> str:
     return f"{build_seconds:.2f}s"
 
 
+def render_uploaded_file_item(file, index: int) -> None:
+    col1, col2 = st.columns([5, 1], vertical_alignment="center")
+    with col1:
+        st.markdown(
+            f'<div style="background:#1a1916; border:1px solid rgba(255,255,255,0.07); '
+            f'border-radius:8px; padding:0.4rem 0.7rem; font-size:0.78rem; '
+            f'color:#f0ece4; font-family:DM Mono,monospace; overflow:hidden; '
+            f'text-overflow:ellipsis; white-space:nowrap;">'
+            f'📄 {file.name}</div>',
+            unsafe_allow_html=True,
+        )
+    with col2:
+        if st.button("✕", key=f"remove_{index}_{file.name}", help="Remove file"):
+            st.session_state.uploaded_files_list.pop(index)
+            st.session_state.uploader_nonce += 1
+            st.rerun()
+
+
 init_state()
 inject_theme()
 
@@ -651,15 +760,30 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    uploaded_files = []
     append_uploaded = False
     if data_mode == "upload":
-        uploaded_files = st.file_uploader(
+        new_files = st.file_uploader(
             "Upload PDF, TXT, or DOCX files",
             type=["pdf", "txt", "docx"],
             accept_multiple_files=True,
+            label_visibility="collapsed",
+            key=f"upload_files_{st.session_state.uploader_nonce}",
         )
-        append_uploaded = st.checkbox("Append uploaded documents to the saved index", value=False)
+
+        # Add only new files that are not already in the list
+        if new_files:
+            existing_names = [f.name for f in st.session_state.uploaded_files_list]
+            for f in new_files:
+                if f.name not in existing_names:
+                    st.session_state.uploaded_files_list.append(f)
+
+        # Render uploaded files below the uploader, separate from the widget itself.
+        for i, file in enumerate(st.session_state.uploaded_files_list):
+            render_uploaded_file_item(file, i)
+
+        append_uploaded = st.checkbox(
+            "Append uploaded documents to the saved index", value=False
+        )
 
     st.divider()
     st.markdown('<div class="section-label">Retrieval</div>', unsafe_allow_html=True)
@@ -671,7 +795,7 @@ with st.sidebar:
             try:
                 store, build_info = prepare_vector_store(
                     data_mode=data_mode,
-                    uploaded_files=uploaded_files,
+                    uploaded_files=st.session_state.get("uploaded_files_list", []),
                     append_uploaded=append_uploaded,
                 )
                 st.session_state.store = store
@@ -685,6 +809,8 @@ with st.sidebar:
 
     if st.button("Clear History", use_container_width=True):
         st.session_state.history = []
+        st.session_state.uploaded_files_list = []
+        st.session_state.uploader_nonce += 1
         st.rerun()
 
 render_build_summary()
