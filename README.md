@@ -192,12 +192,6 @@ Pull requests are welcome! For major changes, open an issue first.
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
-
----
-
 ## 👨‍💻 Author
 
 Made with ❤️ — feel free to reach out or drop a ⭐ if this helped you!
