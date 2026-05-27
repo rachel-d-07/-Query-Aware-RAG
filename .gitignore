@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# Environment variables (NEVER commit API keys)
+.env
+*.env
+
+# FAISS index (large binary files — rebuild locally)
+faiss_index/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+
+# Data files (optional — remove these lines if you want to commit sample docs)
+# data/*.pdf
+# data/*.docx
+
+# Model cache
+.cache/
+huggingface/
+sentence_transformers/

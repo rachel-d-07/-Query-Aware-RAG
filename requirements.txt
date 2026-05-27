@@ -1,0 +1,11 @@
+streamlit>=1.32.0
+sentence-transformers>=2.7.0
+torchvision
+faiss-cpu>=1.8.0
+numpy>=1.24.0
+pypdf>=4.0.0
+python-docx>=1.1.0
+google-generativeai>=0.5.0
+groq>=0.11.0
+altair>=5.2.0
+rank-bm25>=0.2.2
